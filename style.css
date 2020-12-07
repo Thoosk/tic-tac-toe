@@ -96,8 +96,8 @@ table {
 
 #gameboard {
   margin-top: 7rem;
-  height: 80%;
-  width: 50%;
+  height: 60rem;
+  width: 65rem;
   background-color: aquamarine;
   display: grid;
   grid-template-columns: repeat(3, 1fr);

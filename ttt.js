@@ -46,8 +46,16 @@ const Player = (name, sign) => {
 
 ////// GAMELOGIC
 const gameLogic = (() => {
-  const player1 = Player("Thomas", "X");
-  const player2 = Player("Niko", "O");
+  let player1 = Player(prompt("Name of Player 1 (X)", "Player1"), "X");
+  if (player1.getName() === null) {
+    player1 = Player(prompt("Please enter a valid name for Player 1"), "X");
+  }
+
+  let player2 = Player(prompt("Name of Player 2 (O)", "Player2"), "O");
+  if (player2.getName() === null) {
+    player2 = Player(prompt("Please enter a valid name for Player 2"), "O");
+  }
+
   let player1Moves = [];
   let player2Moves = [];
   let currentPlayer = 1;
@@ -64,6 +72,7 @@ const gameLogic = (() => {
   ];
 
   const startGame = () => {
+    renderBoard.setNames(player1, player2);
     let square = Array.from(document.querySelectorAll(".square"));
     square.forEach((element) => {
       element.addEventListener("click", (event) => {
@@ -80,17 +89,13 @@ const gameLogic = (() => {
             currentPlayer = 1;
           }
         }
-
-        console.log(gameBoard.displayField());
-        console.log(element);
-        console.log(element.value);
       });
     });
   };
 
   const checkValidity = (element) => {
     if (element.textContent === "X" || element.textContent === "O") {
-      alert("This field is already used");
+      alert("This field is already marked");
       return false;
     } else {
       return true;
@@ -99,19 +104,18 @@ const gameLogic = (() => {
 
   const checkScore = (move, player) => {
     playCount++;
+    console.log(playCount);
     if (player.getSign() === "X") {
       player1Moves.push(move);
     } else {
       player2Moves.push(move);
     }
 
-    console.log(player1Moves);
-
     //player1Win
     for (let item of winningCond) {
       let res = item.every((val) => player1Moves.indexOf(val) !== -1);
       if (res) {
-        console.log("p1win");
+        gameEnd(player1.getName());
         break;
       }
     }
@@ -120,37 +124,27 @@ const gameLogic = (() => {
     for (let item of winningCond) {
       let res = item.every((val) => player2Moves.indexOf(val) !== -1);
       if (res) {
-        console.log("p2win");
+        gameEnd(player2.getName());
         break;
       }
     }
 
-    // for (let item of winningCond) {
-    //   console.log(item.compareArrays(player1Moves));
-    //   if (item.includes(player1Moves)) {
-    //     console.log("Win");
-    //   }
-    // }
-
-    // let isOverNineteen = winningCond.some(
-    //   (cond) => cond.sort() == player1Moves.sort()
-    // );
-    // console.log(isOverNineteen);
-
-    // winningCond.forEach((condition) => {
-    //   console.log(condition);
-    //   condition.forEach((num) => {
-    //     if (player1Moves.includes(num))
-    //   })
-    //   if (condition == player1Moves) {
-    //     console.log("win");
-    //   }
-    // });
+    if (playCount >= 9) {
+      gameEnd("NOBODY");
+    }
   };
 
-  const gameEnd = () => {
-    alert(`${Player2} has won`);
-    gameBoard.resetField();
+  const gameEnd = (player) => {
+    alert(`${player} has won`);
+    let anotherGame = prompt("Want another game? (Y for yes)").toLowerCase();
+    if (anotherGame === "y") {
+      player1Moves = [];
+      player2Moves = [];
+      gameBoard.resetField();
+      renderBoard.resetBoard();
+      renderBoard.generateBoard();
+      startGame();
+    }
   };
 
   return { startGame, currentPlayer };
@@ -172,21 +166,45 @@ const renderBoard = (() => {
     });
   };
 
+  let leftSide = document.querySelector("#left-side");
+  let rightSide = document.querySelector("#right-side");
+  const setNames = (player1, player2) => {
+    let player1Name = document.createElement("h1");
+    player1Name.textContent = player1.getName();
+    let player1Sign = document.createElement("p");
+    player1Sign.textContent = "X";
+    leftSide.appendChild(player1Name);
+    leftSide.appendChild(player1Sign);
+    let player2Name = document.createElement("h1");
+    player2Name.textContent = player2.getName();
+    let player2Sign = document.createElement("p");
+    player2Sign.textContent = "O";
+    rightSide.appendChild(player2Name);
+    rightSide.appendChild(player2Sign);
+  };
+
   const updateBoard = (field, player) => {
     field.firstChild.innerText = player.getSign();
+  };
+
+  const resetBoard = () => {
+    while (board.firstChild) {
+      board.removeChild(board.lastChild);
+    }
+    while (leftSide.firstChild) {
+      leftSide.removeChild(leftSide.lastChild);
+      rightSide.removeChild(rightSide.lastChild);
+    }
   };
 
   return {
     generateBoard,
     updateBoard,
+    resetBoard,
+    setNames,
   };
 })();
 
 renderBoard.generateBoard();
 gameLogic.startGame();
-
-// gameBoard.displayField();
-// gameBoard.updateField("a3");
-// gameBoard.displayField();
-// gameBoard.updateField("a6");
-// gameBoard.displayField();
+renderBoard.setNames();
