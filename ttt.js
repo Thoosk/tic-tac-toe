@@ -75,22 +75,38 @@ const gameLogic = (() => {
     renderBoard.setNames(player1, player2);
     let square = Array.from(document.querySelectorAll(".square"));
     square.forEach((element) => {
-      element.addEventListener("click", (event) => {
-        if (checkValidity(element) === true) {
-          if (currentPlayer === 1) {
-            gameBoard.updateField(element.value, player1);
-            renderBoard.updateBoard(element, player1);
-            checkScore(element.value, player1);
-            currentPlayer = 2;
-          } else {
-            gameBoard.updateField(element.value, player2);
-            renderBoard.updateBoard(element, player2);
-            checkScore(element.value, player2);
-            currentPlayer = 1;
-          }
-        }
-      });
+      element.addEventListener("click", move.bind(this, element));
+      // if (checkValidity(element) === true) {
+      //   if (currentPlayer === 1) {
+      //     gameBoard.updateField(element.value, player1);
+      //     renderBoard.updateBoard(element, player1);
+      //     checkScore(element.value, player1);
+      //     currentPlayer = 2;
+      //   } else {
+      //     gameBoard.updateField(element.value, player2);
+      //     renderBoard.updateBoard(element, player2);
+      //     checkScore(element.value, player2);
+      //     currentPlayer = 1;
+      //   }
+      // }
     });
+  };
+
+  const move = (element) => {
+    console.log(element);
+    if (checkValidity(element) === true) {
+      if (currentPlayer === 1) {
+        gameBoard.updateField(element.value, player1);
+        renderBoard.updateBoard(element, player1);
+        checkScore(element.value, player1);
+        currentPlayer = 2;
+      } else {
+        gameBoard.updateField(element.value, player2);
+        renderBoard.updateBoard(element, player2);
+        checkScore(element.value, player2);
+        currentPlayer = 1;
+      }
+    }
   };
 
   const checkValidity = (element) => {
@@ -136,8 +152,15 @@ const gameLogic = (() => {
 
   const gameEnd = (player) => {
     alert(`${player} has won`);
-    let anotherGame = prompt("Want another game? (Y for yes)").toLowerCase();
-    if (anotherGame === "y") {
+    let anotherGame = prompt("Want another game? (Y for yes)");
+    if (anotherGame === null) {
+      let square = Array.from(document.querySelectorAll(".square"));
+      square.forEach((elem) => {
+        elemClone = elem.cloneNode(true);
+        elem.parentNode.replaceChild(elemClone, elem);
+      });
+    } else if (anotherGame.toLowerCase() === "y") {
+      playCount = 0;
       player1Moves = [];
       player2Moves = [];
       gameBoard.resetField();
